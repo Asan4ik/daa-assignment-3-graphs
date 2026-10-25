@@ -1,0 +1,43 @@
+{"name":"dsu: spec example","expected":{"states":[[3,2],[2,3],[2,3],[2,3]]},"why":"0-1 merges (3 comps, size 2); 1-2 adds vertex 2 (2, 3); 0-2 is already connected; 3-3 is a self-union."}
+{"name":"dsu: n=0","expected":{"states":[]},"why":"No vertices, no operations, no states."}
+{"name":"dsu: n=1 self union","expected":{"states":[[1,1]]},"why":"A single vertex stays one component of size 1."}
+{"name":"dsu: n>0 without operations","expected":{"states":[]},"why":"No operation means no state (the initial state is not reported)."}
+{"name":"dsu: repeats and chain","expected":{"states":[[4,2],[3,2],[3,2],[2,3],[1,5]]},"why":"{0,1}; {2,3}; repeat; {2,3,4} gives largest 3; joining both gives one component of 5."}
+{"name":"kruskal: spec example with isolate","expected":{"cost":5,"components":2},"why":"Triangle needs 2 edges: 2+3 = 5; vertex 3 is isolated so there are 2 components."}
+{"name":"prim: spec example with isolate","expected":{"cost":5,"components":2},"why":"Triangle needs 2 edges: 2+3 = 5; vertex 3 is isolated so there are 2 components."}
+{"name":"kruskal: n=0","expected":{"cost":0,"components":0},"why":"Empty graph: cost 0, zero components."}
+{"name":"prim: n=0","expected":{"cost":0,"components":0},"why":"Empty graph: cost 0, zero components."}
+{"name":"kruskal: only a negative self-loop","expected":{"cost":0,"components":1},"why":"A self-loop is never selected, even when negative."}
+{"name":"prim: only a negative self-loop","expected":{"cost":0,"components":1},"why":"A self-loop is never selected, even when negative."}
+{"name":"kruskal: negative, parallel, loop","expected":{"cost":-3,"components":1},"why":"Ignore the loop; between the parallel 0-1 edges take -3; plus 1-2 weight 0: total -3."}
+{"name":"prim: negative, parallel, loop","expected":{"cost":-3,"components":1},"why":"Ignore the loop; between the parallel 0-1 edges take -3; plus 1-2 weight 0: total -3."}
+{"name":"kruskal: sum beyond 32 bits","expected":{"cost":3000000000,"components":1},"why":"Any 3 of 4 equal edges: 3*10^9 = 3 000 000 000 > 2^31."}
+{"name":"prim: sum beyond 32 bits","expected":{"cost":3000000000,"components":1},"why":"Any 3 of 4 equal edges: 3*10^9 = 3 000 000 000 > 2^31."}
+{"name":"kruskal: negative sum beyond 32 bits","expected":{"cost":-3000000000,"components":1},"why":"Any 3 of 4 equal edges: -3 000 000 000 < -2^31."}
+{"name":"prim: negative sum beyond 32 bits","expected":{"cost":-3000000000,"components":1},"why":"Any 3 of 4 equal edges: -3 000 000 000 < -2^31."}
+{"name":"kruskal: isolates and one edge","expected":{"cost":5,"components":4},"why":"One edge; vertices 0,3,4 isolated: components = {0},{1,2},{3},{4}."}
+{"name":"prim: isolates and one edge","expected":{"cost":5,"components":4},"why":"One edge; vertices 0,3,4 isolated: components = {0},{1,2},{3},{4}."}
+{"name":"kruskal: two components with ties","expected":{"cost":-2,"components":2},"why":"Triangle one: 1+1 = 2. Triangle two: -2-2 = -4. Total -2, two components."}
+{"name":"prim: two components with ties","expected":{"cost":-2,"components":2},"why":"Triangle one: 1+1 = 2. Triangle two: -2-2 = -4. Total -2, two components."}
+{"name":"scc: spec example","expected":{"component":[0,0,2,3]},"why":"0<->1 form one SCC; 2 and 3 are singletons. Condensation: {01}->{2}->{3}."}
+{"name":"scc: n=0","expected":{"component":[]},"why":"Empty graph."}
+{"name":"scc: isolates","expected":{"component":[0,1,2]},"why":"No edges: three singleton SCCs, no condensation edges."}
+{"name":"scc: duplicates and self-loops","expected":{"component":[0,1,1]},"why":"{0} and {1,2}; the duplicate 0->1 edge must give ONE condensation pair; loops are internal."}
+{"name":"scc: cycle plus tail","expected":{"component":[0,0,0,3,4]},"why":"{0,1,2} is a cycle, then 3 and 4 hang off it as singletons."}
+{"name":"scc: many parallel cross edges","expected":{"component":[0,0,2,2]},"why":"{0,1} and {2,3}; three cross edges collapse to the single pair ({01},{23})."}
+{"name":"topo: spec example","expected":{"acyclic":true},"why":"Edges 0->2, 1->2, 2->3 have no cycle."}
+{"name":"topo: n=0","expected":{"acyclic":true},"why":"Empty graph is acyclic."}
+{"name":"topo: self-loop","expected":{"acyclic":false},"why":"A self-loop is a cycle."}
+{"name":"topo: cycle in a later component","expected":{"acyclic":false},"why":"Vertices 0-1 are fine, but 2->3->4->2 is a cycle: every component must be checked."}
+{"name":"topo: diamond (finished vertex is not a cycle)","expected":{"acyclic":true},"why":"DFS reaches 3 twice; the second visit hits a FINISHED vertex, which is not a cycle."}
+{"name":"topo: parallel edges","expected":{"acyclic":true},"why":"Two copies of 0->1 are still acyclic."}
+{"name":"topo: two-cycle","expected":{"acyclic":false},"why":"0->1->0."}
+{"name":"dag: spec example","expected":{"acyclic":true,"distance":[0,3,-4,0,null]},"why":"d1=3; d2=min(8, 3-7)=-4; d3=-4+4=0; vertex 4 has no incoming path."}
+{"name":"dag: singleton","expected":{"acyclic":true,"distance":[0]},"why":"Only the source, distance 0."}
+{"name":"dag: unreachable vs distance -1","expected":{"acyclic":true,"distance":[0,-1,null]},"why":"Vertex 1 is reachable at cost -1; vertex 2 is unreachable (null)."}
+{"name":"dag: cycle unreachable from source","expected":{"acyclic":false,"distance":[]},"why":"2<->3 is a cycle although the source cannot reach it: the whole graph counts."}
+{"name":"dag: self-loop on source","expected":{"acyclic":false,"distance":[]},"why":"A self-loop makes the graph cyclic."}
+{"name":"dag: tied and parallel edges","expected":{"acyclic":true,"distance":[0,5,1]},"why":"Vertex 1 has three optimal routes of cost 5 (edge 0, edge 1, or 0->2->1)."}
+{"name":"dag: 64-bit negative chain","expected":{"acyclic":true,"distance":[0,-1000000000,-2000000000,-3000000000]},"why":"Each hop costs -10^9, the last total -3 000 000 000."}
+{"name":"dag: source is not vertex 0","expected":{"acyclic":true,"distance":[null,9,0,7]},"why":"From 2: 2->3 costs 7, 3->1 costs 2 so 9; vertex 0 only has an edge INTO the source, so it is unreachable."}
+{"name":"dag: negative edge wins over direct edge","expected":{"acyclic":true,"distance":[0,-4,1]},"why":"d1 = min(4, 1-5) = -4."}

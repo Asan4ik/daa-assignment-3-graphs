@@ -1,0 +1,96 @@
+{
+ "environment": {
+  "python": "3.12.3",
+  "implementation": "CPython",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "cpu_count": 1,
+  "timer": "time.perf_counter",
+  "repeats": 5,
+  "warmup_calls_per_method_per_size": 1
+ },
+ "results": [
+  {
+   "n": 1000,
+   "m": 5000,
+   "seed": 20262025,
+   "cost": -762464259097,
+   "components": 1,
+   "kruskal": {
+    "timings_s": [
+     0.0024,
+     0.0024,
+     0.0023,
+     0.0022,
+     0.0023
+    ],
+    "median_s": 0.0023
+   },
+   "prim": {
+    "timings_s": [
+     0.0046,
+     0.0044,
+     0.0043,
+     0.0043,
+     0.0044
+    ],
+    "median_s": 0.0044
+   }
+  },
+  {
+   "n": 10000,
+   "m": 50000,
+   "seed": 20271025,
+   "cost": -7617089237995,
+   "components": 1,
+   "kruskal": {
+    "timings_s": [
+     0.0358,
+     0.0355,
+     0.035,
+     0.0354,
+     0.0355
+    ],
+    "median_s": 0.0355
+   },
+   "prim": {
+    "timings_s": [
+     0.0826,
+     0.0814,
+     0.083,
+     0.079,
+     0.0788
+    ],
+    "median_s": 0.0814
+   }
+  },
+  {
+   "n": 100000,
+   "m": 250000,
+   "seed": 20361025,
+   "cost": -52717148650627,
+   "components": 690,
+   "kruskal": {
+    "timings_s": [
+     0.3769,
+     0.3882,
+     0.4187,
+     0.3715,
+     0.3625
+    ],
+    "median_s": 0.3769
+   },
+   "prim": {
+    "timings_s": [
+     0.9067,
+     0.9156,
+     0.9654,
+     0.9984,
+     0.9124
+    ],
+    "median_s": 0.9156
+   }
+  }
+ ]
+}
