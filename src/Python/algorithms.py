@@ -1,12 +1,53 @@
 """Implement the six graph methods and your route helper. See the README at the repository root."""
 
 
+class _DSU:
+    """Disjoint sets: path compression (iterative) + union by size."""
+
+    __slots__ = ("parent", "size")
+
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n
+
+    def find(self, x):
+        parent = self.parent
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    def union(self, a, b):
+        """Merge the sets of a and b; return True if they were different."""
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb:
+            return False
+        if self.size[ra] < self.size[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra
+        self.size[ra] += self.size[rb]
+        return True
+
+
 def dsu(request):
-    """DSU with path compression and union by size/rank; return states."""
+    """DSU with path compression and union by size; return states."""
     n = request["n"]
     operations = request["operations"]
 
-    raise NotImplementedError("TODO dsu")
+    sets = _DSU(n)
+    components = n
+    largest = 1 if n > 0 else 0
+    states = []
+    for u, v in operations:
+        if sets.union(u, v):
+            components -= 1
+            ra = sets.find(u)
+            if sets.size[ra] > largest:
+                largest = sets.size[ra]
+        states.append([components, largest])
+    return {"states": states}
 
 
 def kruskal(request):
