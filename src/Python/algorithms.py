@@ -2,6 +2,7 @@
 
 import heapq
 
+
 class _DSU:
     """Disjoint sets: path compression (iterative) + union by size."""
 
@@ -163,18 +164,94 @@ def scc(request):
     return {"component": component, "condensation": condensation}
 
 
+def _adjacency(n, pairs, weighted=False):
+    adjacency = [[] for _ in range(n)]
+    if weighted:
+        for i, (u, v, w) in enumerate(pairs):
+            adjacency[u].append((v, w, i))
+    else:
+        for u, v in pairs:
+            adjacency[u].append(v)
+    return adjacency
+
+
+def _topological_order(n, adjacency, neighbour=lambda entry: entry):
+    state = [0] * n          # 0 unvisited, 1 active, 2 finished
+    pointer = [0] * n
+    finish = []
+    for root in range(n):
+        if state[root]:
+            continue
+        state[root] = 1
+        stack = [root]
+        while stack:
+            u = stack[-1]
+            neighbours = adjacency[u]
+            if pointer[u] < len(neighbours):
+                v = neighbour(neighbours[pointer[u]])
+                pointer[u] += 1
+                if state[v] == 0:
+                    state[v] = 1
+                    stack.append(v)
+                elif state[v] == 1:
+                    return None
+            else:
+                state[u] = 2
+                finish.append(u)
+                stack.pop()
+    finish.reverse()
+    return finish
+
+
 def topo(request):
     """Three-state DFS and reverse finish order; return acyclic and order."""
     n = request["n"]
     edges = request["edges"]
 
-    raise NotImplementedError("TODO topo")
+    order = _topological_order(n, _adjacency(n, edges))
+    if order is None:
+        return {"acyclic": False, "order": []}
+    return {"acyclic": True, "order": order}
 
 
 def dag(request):
-    """Whole-graph cycle check and DAG relaxation; add your own route helper."""
+    """Whole-graph cycle check and DAG relaxation; route helper is reconstruct_route."""
     n = request["n"]
     source = request["source"]
     edges = request["edges"]
 
-    raise NotImplementedError("TODO dag")
+    adjacency = _adjacency(n, edges, weighted=True)
+    order = _topological_order(n, adjacency, neighbour=lambda entry: entry[0])
+    if order is None:
+        return {"acyclic": False, "distance": [], "parent_edge": []}
+
+    distance = [None] * n
+    parent_edge = [-1] * n
+    distance[source] = 0
+    for u in order:
+        du = distance[u]
+        if du is None:
+            continue
+        for v, w, i in adjacency[u]:
+            candidate = du + w
+            if distance[v] is None or candidate < distance[v]:
+                distance[v] = candidate
+                parent_edge[v] = i
+    return {"acyclic": True, "distance": distance, "parent_edge": parent_edge}
+
+
+def reconstruct_route(source, target, parent_edge, edges):
+    if target == source:
+        return [source]
+    if parent_edge[target] == -1:
+        return []
+    route = [target]
+    current = target
+    while current != source:
+        edge_id = parent_edge[current]
+        if edge_id == -1 or len(route) > len(parent_edge):
+            return []
+        current = edges[edge_id][0]
+        route.append(current)
+    route.reverse()
+    return route
