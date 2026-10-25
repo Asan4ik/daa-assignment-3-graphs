@@ -1,5 +1,6 @@
 """Implement the six graph methods and your route helper. See the README at the repository root."""
 
+import heapq
 
 class _DSU:
     """Disjoint sets: path compression (iterative) + union by size."""
@@ -55,7 +56,18 @@ def kruskal(request):
     n = request["n"]
     edges = request["edges"]
 
-    raise NotImplementedError("TODO kruskal")
+    order = sorted(range(len(edges)), key=lambda i: edges[i][2])
+    sets = _DSU(n)
+    chosen = []
+    cost = 0
+    for i in order:
+        u, v, w = edges[i]
+        if sets.union(u, v):
+            chosen.append(i)
+            cost += w
+            if len(chosen) == n - 1:
+                break
+    return {"cost": cost, "edge_ids": chosen, "components": n - len(chosen)}
 
 
 def prim(request):
@@ -63,7 +75,36 @@ def prim(request):
     n = request["n"]
     edges = request["edges"]
 
-    raise NotImplementedError("TODO prim")
+    adjacency = [[] for _ in range(n)]
+    for i, (u, v, w) in enumerate(edges):
+        if u == v:
+            continue
+        adjacency[u].append((w, i, v))
+        adjacency[v].append((w, i, u))
+
+    visited = [False] * n
+    chosen = []
+    cost = 0
+    components = 0
+    push, pop = heapq.heappush, heapq.heappop
+    for start in range(n):
+        if visited[start]:
+            continue
+        components += 1
+        visited[start] = True
+        heap = list(adjacency[start])
+        heapq.heapify(heap)
+        while heap:
+            w, i, v = pop(heap)
+            if visited[v]:
+                continue
+            visited[v] = True
+            chosen.append(i)
+            cost += w
+            for entry in adjacency[v]:
+                if not visited[entry[2]]:
+                    push(heap, entry)
+    return {"cost": cost, "edge_ids": chosen, "components": components}
 
 
 def scc(request):
