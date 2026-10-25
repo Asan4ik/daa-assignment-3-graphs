@@ -112,7 +112,55 @@ def scc(request):
     n = request["n"]
     edges = request["edges"]
 
-    raise NotImplementedError("TODO scc")
+    forward = [[] for _ in range(n)]
+    transpose = [[] for _ in range(n)]
+    for u, v in edges:
+        forward[u].append(v)
+        transpose[v].append(u)
+
+    seen = [False] * n
+    pointer = [0] * n
+    finish = []
+    for root in range(n):
+        if seen[root]:
+            continue
+        seen[root] = True
+        stack = [root]
+        while stack:
+            u = stack[-1]
+            neighbours = forward[u]
+            if pointer[u] < len(neighbours):
+                v = neighbours[pointer[u]]
+                pointer[u] += 1
+                if not seen[v]:
+                    seen[v] = True
+                    stack.append(v)
+            else:
+                finish.append(u)
+                stack.pop()
+
+    component = [-1] * n
+    count = 0
+    for root in reversed(finish):
+        if component[root] != -1:
+            continue
+        component[root] = count
+        stack = [root]
+        while stack:
+            u = stack.pop()
+            for v in transpose[u]:
+                if component[v] == -1:
+                    component[v] = count
+                    stack.append(v)
+        count += 1
+
+    pairs = set()
+    for u, v in edges:
+        a, b = component[u], component[v]
+        if a != b:
+            pairs.add(a * count + b)
+    condensation = [[key // count, key % count] for key in pairs]
+    return {"component": component, "condensation": condensation}
 
 
 def topo(request):
